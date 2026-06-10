@@ -193,10 +193,39 @@ def search_movies(
     response_model=RecommendResponse,
     tags=["Movies"]
 )
+@app.get(
+    "/recommend",
+    response_model=RecommendResponse,
+    tags=["Movies"]
+)
 def get_recommendations(
-    movie_title: str,
+    title: str = Query(..., min_length=1, description="Exact movie title"),
     n: int = Query(default=5, ge=1, le=20, description="Number of recommendations")
 ):
+    """
+    Return the top-n most similar movies for a given title, with posters.
+    Example: /recommend?title=Batman+Begins
+    """
+    try:
+        results = recommend(title, n=n)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    recommendations = []
+    for movie in results:
+        recommendations.append(
+            MovieResult(
+                movie_id=movie['movie_id'],
+                title=movie['title'],
+                score=movie['score'],
+                poster_url=fetch_poster(movie['movie_id']),
+            )
+        )
+
+    return RecommendResponse(
+        seed_movie=title,
+        recommendations=recommendations
+    )
     """
     Return the top-n most similar movies for a given title, with posters.
 
