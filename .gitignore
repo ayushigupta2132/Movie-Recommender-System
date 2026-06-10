@@ -1,0 +1,31 @@
+# .gitignore
+# ----------
+# Files listed here are NEVER committed to Git.
+
+# --- Secrets ---
+# Your real API key. .env.example is committed; .env is not.
+.env
+
+# --- Data files ---
+# pkl files can be 100MB+ and contain your real API key indirectly via
+# the notebook that generated them. Regenerate them locally with the notebook.
+data/*.pkl
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+
+# --- Virtual environment ---
+venv/
+.venv/
+env/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
