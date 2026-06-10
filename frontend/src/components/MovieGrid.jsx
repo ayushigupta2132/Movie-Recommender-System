@@ -6,21 +6,19 @@ const SKELETON_COUNT = 5
 export default function MovieGrid({ seedMovie, movies, isLoading, error, onRetry }) {
   if (!seedMovie) return null
 
-  // Loading
   if (isLoading) {
     return (
       <section aria-label="Loading recommendations" aria-busy="true" className="mt-12 animate-fade-up">
         <SectionHeader seedMovie={seedMovie} subtitle="Finding similar movies…" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mt-6">
           {[...Array(SKELETON_COUNT)].map((_, i) => (
-            <SkeletonCard key={i} index={i} />
+            <SkeletonCard key={`skeleton-${i}`} index={i} />
           ))}
         </div>
       </section>
     )
   }
 
-  // Error
   if (error) {
     return (
       <section aria-label="Recommendation error" className="mt-12 animate-fade-up">
@@ -47,7 +45,6 @@ export default function MovieGrid({ seedMovie, movies, isLoading, error, onRetry
     )
   }
 
-  // Empty
   if (movies.length === 0) {
     return (
       <section aria-label="No recommendations" className="mt-12 animate-fade-up">
@@ -65,7 +62,6 @@ export default function MovieGrid({ seedMovie, movies, isLoading, error, onRetry
     )
   }
 
-  // Results
   return (
     <section aria-label="Recommendations" className="mt-12 animate-fade-up">
       <SectionHeader

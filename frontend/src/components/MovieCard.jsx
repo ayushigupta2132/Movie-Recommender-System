@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 export default function MovieCard({ movie, rank }) {
-  const [imgError, setImgError] = useState(false)
+  const [imgError, setImgError]   = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
 
   const matchPercent = Math.round(movie.score * 100)
@@ -13,35 +13,27 @@ export default function MovieCard({ movie, rank }) {
   }
 
   function scoreBarWidth(pct) {
-    // Scale to visible range — cosine similarity on tag vectors
-    // rarely exceeds 50%, so we map 0–50 to 0–100% bar width.
     return Math.min(Math.round((pct / 50) * 100), 100)
   }
 
   return (
-    <article
-      className="group flex flex-col rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800/60 hover:border-zinc-600 shadow-card hover:shadow-card-hover transition-all duration-250 hover:-translate-y-1.5 cursor-default"
-      style={{ '--stagger': rank - 1 }}
-    >
+    <article className="group flex flex-col rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800/60 hover:border-zinc-600 shadow-card hover:shadow-card-hover transition-all duration-200 hover:-translate-y-1.5 cursor-default">
+
       {/* Poster */}
       <div className="relative w-full aspect-[2/3] bg-zinc-800 overflow-hidden">
 
-        {/* Rank badge */}
         <div className="absolute top-2 left-2 z-10 w-6 h-6 rounded-full bg-black/75 backdrop-blur-sm flex items-center justify-center ring-1 ring-white/10">
           <span className="text-xxs font-bold text-white/90 leading-none">{rank}</span>
         </div>
 
-        {/* Score badge */}
         <div className={`absolute top-2 right-2 z-10 px-1.5 py-0.5 rounded-md border text-xxs font-semibold backdrop-blur-sm ${scoreBadgeClass(matchPercent)}`}>
           {matchPercent}%
         </div>
 
-        {/* Gradient overlay — fades bottom of poster into the card body */}
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-zinc-900 to-transparent z-10 pointer-events-none" />
 
         {!imgError ? (
           <>
-            {/* Shimmer while the actual image loads */}
             {!imgLoaded && (
               <div className="absolute inset-0 skeleton-shimmer" aria-hidden="true" />
             )}
@@ -76,7 +68,6 @@ export default function MovieCard({ movie, rank }) {
           {movie.title}
         </h3>
 
-        {/* Similarity bar */}
         <div className="mt-auto flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <span className="text-zinc-500 text-xxs">Match</span>
@@ -97,6 +88,7 @@ export default function MovieCard({ movie, rank }) {
           </div>
         </div>
       </div>
+
     </article>
   )
 }
