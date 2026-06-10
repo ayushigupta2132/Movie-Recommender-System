@@ -1,60 +1,44 @@
-/**
- * MovieGrid.jsx
- * -------------
- * Renders the full recommendation results section including:
- *   - Loading state  (skeletons)
- *   - Error state    (message + retry button)
- *   - Empty state    (no results returned)
- *   - Results        (grid of MovieCards)
- *
- * Props:
- *   seedMovie:  string | null   — the movie that was searched
- *   movies:     array           — recommendation results from the API
- *   isLoading:  bool
- *   error:      string | null
- *   onRetry:    function        — called when the user clicks Retry
- */
 import MovieCard from './MovieCard'
 import SkeletonCard from './SkeletonCard'
 
 const SKELETON_COUNT = 5
 
 export default function MovieGrid({ seedMovie, movies, isLoading, error, onRetry }) {
-
-  // Don't render anything until the user has selected a movie
   if (!seedMovie) return null
 
-  // ── Loading ──────────────────────────────────────────────────────────────
+  // Loading
   if (isLoading) {
     return (
-      <section aria-label="Loading recommendations" aria-busy="true" className="mt-10">
+      <section aria-label="Loading recommendations" aria-busy="true" className="mt-12 animate-fade-up">
         <SectionHeader seedMovie={seedMovie} subtitle="Finding similar movies…" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mt-6">
           {[...Array(SKELETON_COUNT)].map((_, i) => (
-            <SkeletonCard key={i} />
+            <SkeletonCard key={i} index={i} />
           ))}
         </div>
       </section>
     )
   }
 
-  // ── Error ────────────────────────────────────────────────────────────────
+  // Error
   if (error) {
     return (
-      <section aria-label="Recommendation error" className="mt-10">
+      <section aria-label="Recommendation error" className="mt-12 animate-fade-up">
         <SectionHeader seedMovie={seedMovie} />
-        <div className="mt-6 flex flex-col items-center gap-4 py-14 rounded-xl border border-zinc-800 bg-zinc-900/50">
-          <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4m0 4h.01" />
-          </svg>
-          <div className="text-center">
-            <p className="text-white font-medium">Something went wrong</p>
-            <p className="text-zinc-400 text-sm mt-1 max-w-sm">{error}</p>
+        <div className="mt-6 flex flex-col items-center gap-4 py-16 rounded-2xl border border-zinc-800 bg-zinc-900/40">
+          <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center">
+            <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4m0 4h.01" />
+            </svg>
+          </div>
+          <div className="text-center px-4">
+            <p className="text-white font-semibold">Could not load recommendations</p>
+            <p className="text-zinc-400 text-sm mt-1.5 max-w-sm text-balance">{error}</p>
           </div>
           <button
             onClick={onRetry}
-            className="mt-2 px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
+            className="mt-1 px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover active:scale-95 text-white text-sm font-medium transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             Try again
           </button>
@@ -63,52 +47,52 @@ export default function MovieGrid({ seedMovie, movies, isLoading, error, onRetry
     )
   }
 
-  // ── Empty ────────────────────────────────────────────────────────────────
-  // API returned 200 but with an empty recommendations array
+  // Empty
   if (movies.length === 0) {
     return (
-      <section aria-label="No recommendations" className="mt-10">
+      <section aria-label="No recommendations" className="mt-12 animate-fade-up">
         <SectionHeader seedMovie={seedMovie} />
-        <div className="mt-6 flex flex-col items-center gap-3 py-14 rounded-xl border border-zinc-800 bg-zinc-900/50">
-          <svg className="w-10 h-10 text-zinc-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-          <p className="text-zinc-400 text-sm">No recommendations found for this movie.</p>
+        <div className="mt-6 flex flex-col items-center gap-3 py-16 rounded-2xl border border-zinc-800 bg-zinc-900/40">
+          <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center">
+            <svg className="w-7 h-7 text-zinc-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </div>
+          <p className="text-zinc-400 text-sm">No recommendations found for this title.</p>
         </div>
       </section>
     )
   }
 
-  // ── Results ──────────────────────────────────────────────────────────────
+  // Results
   return (
-    <section aria-label="Recommendations" className="mt-10">
+    <section aria-label="Recommendations" className="mt-12 animate-fade-up">
       <SectionHeader
         seedMovie={seedMovie}
-        subtitle={`${movies.length} movies similar to this one`}
+        subtitle={`${movies.length} similar movies`}
       />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mt-6">
         {movies.map((movie, index) => (
-          <MovieCard
+          <div
             key={movie.movie_id}
-            movie={movie}
-            rank={index + 1}
-          />
+            className="animate-fade-up-stagger"
+            style={{ '--stagger': index }}
+          >
+            <MovieCard movie={movie} rank={index + 1} />
+          </div>
         ))}
       </div>
     </section>
   )
 }
 
-// ---------------------------------------------------------------------------
-// SectionHeader — shared across all states so the layout is stable
-// ---------------------------------------------------------------------------
 function SectionHeader({ seedMovie, subtitle }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
-      <h2 className="text-xl font-bold text-white">
-        Because you searched
-        <span className="text-accent"> "{seedMovie}"</span>
+    <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 border-b border-zinc-800 pb-4">
+      <h2 className="text-lg sm:text-xl font-bold text-white">
+        Because you liked{' '}
+        <span className="text-accent">"{seedMovie}"</span>
       </h2>
       {subtitle && (
         <span className="text-zinc-500 text-sm">{subtitle}</span>

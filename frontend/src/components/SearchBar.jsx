@@ -1,12 +1,3 @@
-/**
- * SearchBar.jsx
- * -------------
- * Autocomplete search input. Pure UI — all logic lives in useSearchBar.
- *
- * Props:
- *   onSelect(title: string) — called when the user commits a selection.
- *   disabled: bool          — disables input while recommendations are loading.
- */
 import { useSearchBar } from '../hooks/useSearchBar'
 
 export default function SearchBar({ onSelect, disabled = false }) {
@@ -24,11 +15,9 @@ export default function SearchBar({ onSelect, disabled = false }) {
     commitSelection,
   } = useSearchBar({ onSelect })
 
-  // Dropdown should render when open AND there's something to show
   const showDropdown = isOpen && (isLoading || error || suggestions.length > 0)
 
   return (
-    // role="combobox" is the correct ARIA pattern for an input + listbox combo
     <div
       ref={containerRef}
       role="combobox"
@@ -37,13 +26,11 @@ export default function SearchBar({ onSelect, disabled = false }) {
       aria-owns="search-listbox"
       className="relative w-full max-w-2xl mx-auto"
     >
-      {/* ------------------------------------------------------------------ */}
-      {/* Input                                                                */}
-      {/* ------------------------------------------------------------------ */}
+      {/* Input wrapper */}
       <div className="relative">
         {/* Search icon */}
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 pointer-events-none"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 pointer-events-none transition-colors"
           fill="none" stroke="currentColor" strokeWidth={2}
           viewBox="0 0 24 24" aria-hidden="true"
         >
@@ -57,11 +44,9 @@ export default function SearchBar({ onSelect, disabled = false }) {
           role="searchbox"
           aria-autocomplete="list"
           aria-controls="search-listbox"
-          aria-activedescendant={
-            activeIndex >= 0 ? `suggestion-${activeIndex}` : undefined
-          }
+          aria-activedescendant={activeIndex >= 0 ? `suggestion-${activeIndex}` : undefined}
           aria-label="Search for a movie"
-          placeholder="Search a movie… e.g. Batman Begins"
+          placeholder="Search a movie… e.g. The Dark Knight"
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -69,40 +54,29 @@ export default function SearchBar({ onSelect, disabled = false }) {
           autoComplete="off"
           spellCheck={false}
           className={[
-            'w-full bg-zinc-900 border rounded-xl',
+            'w-full bg-zinc-900 border rounded-2xl',
             'pl-12 pr-12 py-4',
-            'text-white placeholder-zinc-500 text-base',
-            'outline-none transition-all duration-150',
+            'text-white placeholder-zinc-600 text-base',
+            'outline-none transition-all duration-200',
+            'focus-visible:ring-2 focus-visible:ring-accent/50',
             showDropdown
-              ? 'border-accent rounded-b-none'
-              : 'border-zinc-700 hover:border-zinc-500 focus:border-accent',
-            disabled ? 'opacity-50 cursor-not-allowed' : '',
+              ? 'border-accent/70 rounded-b-none shadow-lg shadow-black/30'
+              : 'border-zinc-800 hover:border-zinc-700 focus:border-accent/70',
+            disabled ? 'opacity-40 cursor-not-allowed' : '',
           ].join(' ')}
         />
 
-        {/* Spinner — visible while debounced fetch is in-flight */}
+        {/* Spinner */}
         {isLoading && (
-          <span
-            aria-label="Searching…"
-            className="absolute right-4 top-1/2 -translate-y-1/2"
-          >
-            <svg
-              className="w-5 h-5 text-accent animate-spin"
-              fill="none" viewBox="0 0 24 24" aria-hidden="true"
-            >
-              <circle
-                className="opacity-25" cx="12" cy="12" r="10"
-                stroke="currentColor" strokeWidth="4"
-              />
-              <path
-                className="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              />
+          <span aria-label="Searching…" className="absolute right-4 top-1/2 -translate-y-1/2">
+            <svg className="w-4 h-4 text-accent animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
             </svg>
           </span>
         )}
 
-        {/* Clear button — visible when there's text and not loading */}
+        {/* Clear button */}
         {query.length > 0 && !isLoading && (
           <button
             type="button"
@@ -111,40 +85,36 @@ export default function SearchBar({ onSelect, disabled = false }) {
               handleChange({ target: { value: '' } })
               inputRef.current?.focus()
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300 transition-colors p-0.5 rounded-full hover:bg-zinc-800"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
         )}
       </div>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Dropdown                                                             */}
-      {/* ------------------------------------------------------------------ */}
+      {/* Dropdown */}
       {showDropdown && (
         <ul
           id="search-listbox"
           role="listbox"
           aria-label="Movie suggestions"
-          className="absolute z-50 w-full bg-zinc-900 border border-t-0 border-accent rounded-b-xl overflow-hidden shadow-2xl"
+          className="absolute z-50 w-full bg-zinc-900 border border-t-0 border-accent/70 rounded-b-2xl overflow-hidden shadow-2xl shadow-black/60 max-h-72 overflow-y-auto"
         >
-
-          {/* Loading skeleton rows */}
+          {/* Loading skeletons */}
           {isLoading && suggestions.length === 0 && (
-            <>
-              {[...Array(3)].map((_, i) => (
-                <li key={i} aria-hidden="true" className="px-4 py-3">
-                  <div className="skeleton-shimmer h-4 rounded w-3/4" />
-                </li>
-              ))}
-            </>
+            [...Array(4)].map((_, i) => (
+              <li key={i} aria-hidden="true" className="px-4 py-3 flex items-center gap-3">
+                <div className="skeleton-shimmer w-4 h-4 rounded shrink-0" />
+                <div className="skeleton-shimmer h-3.5 rounded-md flex-1" style={{ width: `${55 + i * 10}%` }} />
+              </li>
+            ))
           )}
 
-          {/* Error state */}
+          {/* Error */}
           {error && !isLoading && (
-            <li role="option" aria-selected="false" className="px-4 py-3 text-red-400 text-sm flex items-center gap-2">
+            <li role="option" aria-selected="false" className="px-4 py-3.5 text-red-400 text-sm flex items-center gap-2.5">
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 8v4m0 4h.01" />
@@ -153,42 +123,40 @@ export default function SearchBar({ onSelect, disabled = false }) {
             </li>
           )}
 
-          {/* Empty state — query was sent but nothing matched */}
+          {/* Empty */}
           {!isLoading && !error && suggestions.length === 0 && (
-            <li role="option" aria-selected="false" className="px-4 py-3 text-zinc-500 text-sm">
-              No movies found for "{query}"
+            <li role="option" aria-selected="false" className="px-4 py-3.5 text-zinc-500 text-sm">
+              No results for "{query}"
             </li>
           )}
 
-          {/* Suggestion rows */}
+          {/* Suggestions */}
           {!isLoading && !error && suggestions.map((title, index) => (
             <li
               key={title}
               id={`suggestion-${index}`}
               role="option"
               aria-selected={index === activeIndex}
-              // mousedown instead of onClick: fires before onBlur so the
-              // dropdown doesn't close before the click registers
               onMouseDown={(e) => {
                 e.preventDefault()
                 commitSelection(title)
               }}
-              onMouseEnter={() => {}}
               className={[
                 'px-4 py-3 cursor-pointer text-sm transition-colors duration-75',
-                'flex items-center gap-3',
+                'flex items-center gap-3 select-none',
                 index === activeIndex
                   ? 'bg-accent text-white'
-                  : 'text-zinc-200 hover:bg-zinc-800',
-                index < suggestions.length - 1 ? 'border-b border-zinc-800' : '',
+                  : 'text-zinc-300 hover:bg-zinc-800',
+                index < suggestions.length - 1 ? 'border-b border-zinc-800/70' : '',
               ].join(' ')}
             >
-              {/* Film icon */}
-              <svg className="w-4 h-4 shrink-0 opacity-50" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                className={`w-3.5 h-3.5 shrink-0 ${index === activeIndex ? 'text-white/70' : 'text-zinc-600'}`}
+                fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"
+              >
                 <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
                 <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5" />
               </svg>
-              {/* Highlight matching substring */}
               <HighlightMatch text={title} query={query} />
             </li>
           ))}
@@ -198,10 +166,6 @@ export default function SearchBar({ onSelect, disabled = false }) {
   )
 }
 
-// ---------------------------------------------------------------------------
-// HighlightMatch — bolds the part of the title that matches the query.
-// Pure component, no state, no side effects.
-// ---------------------------------------------------------------------------
 function HighlightMatch({ text, query }) {
   const trimmed = query.trim()
   if (!trimmed) return <span>{text}</span>
