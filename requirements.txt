@@ -1,33 +1,8 @@
-# Movie Recommender System — Python dependencies
-#
-# HOW TO INSTALL:
-#   pip install -r requirements.txt
-#
-# WHY PINNED VERSIONS?
-#   Without pinning, `pip install` grabs the latest version of each package.
-#   A breaking change in any library (e.g. a pandas API change) could silently
-#   break the project months from now. Pinning guarantees reproducibility —
-#   it works the same on your machine, your interviewer's machine, and the server.
-#
-# HOW TO UPDATE VERSIONS:
-#   Run: pip install --upgrade <package>, then update the version here.
-
-# --- Core ML stack ---
-scikit-learn==1.6.1     # CountVectorizer, cosine_similarity
-pandas==2.2.3           # DataFrame operations, reading pkl
-numpy==1.26.4           # Underlying array math (used by sklearn internally)
-nltk==3.9.1             # PorterStemmer used in data preprocessing
-
-# --- FastAPI Backend (Milestone 1) ---
-fastapi==0.115.6        # API framework — defines routes and response models
-uvicorn==0.34.0         # ASGI server that runs the FastAPI app
-                        # Think: FastAPI is the blueprint, uvicorn is the engine
-
-# --- Streamlit UI (Milestone 0 — kept as v1 prototype) ---
-streamlit==1.41.1       # Web UI framework
-
-# --- TMDB API ---
-requests==2.32.3        # HTTP calls to fetch movie posters
-
-# --- Environment variables ---
-python-dotenv==1.0.1    # Reads .env file so API keys stay out of source code
+scikit-learn==1.6.1
+pandas==2.2.3
+numpy==1.26.4
+nltk==3.9.1
+fastapi==0.115.6
+uvicorn==0.34.0
+requests==2.32.3
+python-dotenv==1.0.1

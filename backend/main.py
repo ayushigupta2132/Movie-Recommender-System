@@ -1,11 +1,15 @@
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from recommender import recommend, get_all_titles
 from tmdb import fetch_poster
@@ -14,82 +18,60 @@ app = FastAPI(
     title="Movie Recommender API",
     description="Content-based movie recommendation engine using cosine similarity on TMDB metadata.",
     version="1.0.0",
-    # docs_url="/docs" is the default — the interactive Swagger UI
-    # redoc_url="/redoc" is also available — a cleaner read-only view
 )
+
+# In production ALLOWED_ORIGINS is set to the Vercel URL via Render env vars.
+# Locally it falls back to wildcard so dev still works without configuration.
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],       
-    allow_methods=["GET"],     
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET"],
     allow_headers=["*"],
 )
 
+
 class MovieResult(BaseModel):
-    """A single recommended movie."""
     movie_id: int
     title: str
-    score: float        # Cosine similarity score, 0.0 to 1.0
-    poster_url: str     # Full TMDB poster URL, or fallback placeholder
+    score: float
+    poster_url: str
 
 
 class RecommendResponse(BaseModel):
-    """Response for GET /recommend/{movie_title}"""
-    seed_movie: str                     # The movie the user searched for
-    recommendations: List[MovieResult]  # List of similar movies
+    seed_movie: str
+    recommendations: List[MovieResult]
 
 
 class SearchResult(BaseModel):
-    """A single search result (title only — no poster needed for autocomplete)."""
     title: str
 
 
 class HealthResponse(BaseModel):
-    """Response for GET /health"""
     status: str
-    movie_count: int   # Tells you the model loaded successfully
+    movie_count: int
 
-#Routes
 
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 def health_check():
-    
     all_titles = get_all_titles()
-    return HealthResponse(
-        status="ok",
-        movie_count=len(all_titles)
-    )
+    return HealthResponse(status="ok", movie_count=len(all_titles))
 
 
 @app.get("/search", response_model=List[SearchResult], tags=["Movies"])
-def search_movies(
-    q: str = Query(..., min_length=1, description="Search query string")
-):
-    
+def search_movies(q: str = Query(..., min_length=1)):
     all_titles = get_all_titles()
-
     q_lower = q.lower()
     matches = [t for t in all_titles if q_lower in t.lower()]
-
-    # Limit results to 10 for autocomplete usability
     return [SearchResult(title=t) for t in matches[:10]]
 
 
-@app.get(
-    "/recommend/{movie_title}",
-    response_model=RecommendResponse,
-    tags=["Movies"]
-)
-@app.get(
-    "/recommend",
-    response_model=RecommendResponse,
-    tags=["Movies"]
-)
+@app.get("/recommend", response_model=RecommendResponse, tags=["Movies"])
 def get_recommendations(
-    title: str = Query(..., min_length=1, description="Exact movie title"),
-    n: int = Query(default=5, ge=1, le=20, description="Number of recommendations")
+    title: str = Query(..., min_length=1),
+    n: int = Query(default=5, ge=1, le=20)
 ):
-
     try:
         results = recommend(title, n=n)
     except ValueError as e:
@@ -106,8 +88,4 @@ def get_recommendations(
             )
         )
 
-    return RecommendResponse(
-        seed_movie=title,
-        recommendations=recommendations
-    )
-    
+    return RecommendResponse(seed_movie=title, recommendations=recommendations)
