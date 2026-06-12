@@ -1,4 +1,5 @@
 import { useSearchBar } from '../hooks/useSearchBar'
+import ErrorMessage from './ErrorMessage'
 
 export default function SearchBar({ onSelect, disabled = false }) {
   const {
@@ -15,7 +16,7 @@ export default function SearchBar({ onSelect, disabled = false }) {
     commitSelection,
   } = useSearchBar({ onSelect })
 
-  const showDropdown = isOpen && (isLoading || error || suggestions.length > 0)
+  const showDropdown = isOpen && (isLoading || error || suggestions.length > 0  || query.trim().length > 0)
 
   return (
     <div
@@ -26,11 +27,10 @@ export default function SearchBar({ onSelect, disabled = false }) {
       aria-owns="search-listbox"
       className="relative w-full max-w-2xl mx-auto"
     >
-      {/* Input wrapper */}
+      {/* Input */}
       <div className="relative">
-        {/* Search icon */}
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 pointer-events-none transition-colors"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 pointer-events-none"
           fill="none" stroke="currentColor" strokeWidth={2}
           viewBox="0 0 24 24" aria-hidden="true"
         >
@@ -105,9 +105,9 @@ export default function SearchBar({ onSelect, disabled = false }) {
           {/* Loading skeletons */}
           {isLoading && suggestions.length === 0 && (
             [...Array(4)].map((_, i) => (
-              <li key={i} aria-hidden="true" className="px-4 py-3 flex items-center gap-3">
+              <li key={`search-skeleton-${i}`} aria-hidden="true" className="px-4 py-3 flex items-center gap-3">
                 <div className="skeleton-shimmer w-4 h-4 rounded shrink-0" />
-                <div className="skeleton-shimmer h-3.5 rounded-md flex-1" style={{ width: `${55 + i * 10}%` }} />
+                <div className="skeleton-shimmer h-3.5 rounded-md" style={{ width: `${55 + i * 10}%` }} />
               </li>
             ))
           )}
@@ -115,11 +115,7 @@ export default function SearchBar({ onSelect, disabled = false }) {
           {/* Error */}
           {error && !isLoading && (
             <li role="option" aria-selected="false" className="px-4 py-3.5 text-red-400 text-sm flex items-center gap-2.5">
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v4m0 4h.01" />
-              </svg>
-              {error}
+              <ErrorMessage message={error} compact />
             </li>
           )}
 
@@ -133,7 +129,7 @@ export default function SearchBar({ onSelect, disabled = false }) {
           {/* Suggestions */}
           {!isLoading && !error && suggestions.map((title, index) => (
             <li
-              key={title}
+              key={`${title}-${index}`}
               id={`suggestion-${index}`}
               role="option"
               aria-selected={index === activeIndex}

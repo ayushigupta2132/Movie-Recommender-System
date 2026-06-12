@@ -8,10 +8,10 @@
     font-feature-settings: "kern" 1, "liga" 1;
   }
 
-  ::-webkit-scrollbar        { width: 6px; }
-  ::-webkit-scrollbar-track  { @apply bg-zinc-900; }
-  ::-webkit-scrollbar-thumb  { @apply bg-zinc-700 rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-zinc-500; }
+  ::-webkit-scrollbar              { width: 6px; }
+  ::-webkit-scrollbar-track        { @apply bg-zinc-900; }
+  ::-webkit-scrollbar-thumb        { @apply bg-zinc-700 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover  { @apply bg-zinc-500; }
 }
 
 @layer utilities {
@@ -35,7 +35,7 @@
   animation: shimmer 1.6s infinite linear;
 }
 
-/* Fade-up entrance for recommendation grid */
+/* Fade-up entrance */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -51,7 +51,7 @@
   animation: fade-up 0.35s ease-out both;
 }
 
-/* Staggered card entrance — apply to each card with a CSS var */
+/* Staggered card entrance â€” set --stagger on the wrapper element */
 .animate-fade-up-stagger {
   animation: fade-up 0.35s ease-out both;
   animation-delay: calc(var(--stagger, 0) * 60ms);

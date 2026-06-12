@@ -3,19 +3,19 @@ import { useDebounce } from './useDebounce'
 import { searchMovies } from '../api/client'
 
 export function useSearchBar({ onSelect }) {
-  const [query, setQuery]           = useState('')
+  const [query, setQuery]             = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [activeIndex, setActiveIndex] = useState(-1)
-  const [isOpen, setIsOpen]         = useState(false)
-  const [isLoading, setIsLoading]   = useState(false)
-  const [error, setError]           = useState(null)
+  const [isOpen, setIsOpen]           = useState(false)
+  const [isLoading, setIsLoading]     = useState(false)
+  const [error, setError]             = useState(null)
 
   const containerRef = useRef(null)
   const inputRef     = useRef(null)
 
   const debouncedQuery = useDebounce(query, 300)
 
-  // Fetch suggestions
+  // Fetch suggestions whenever debounced query changes
   useEffect(() => {
     const trimmed = debouncedQuery.trim()
 
@@ -51,7 +51,7 @@ export function useSearchBar({ onSelect }) {
     return () => { cancelled = true }
   }, [debouncedQuery])
 
-  // Click-outside
+  // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -63,7 +63,7 @@ export function useSearchBar({ onSelect }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Commit selection — defined before handleKeyDown so it can be referenced
+  // Commit a selection — defined before handleKeyDown so it's in scope
   const commitSelection = useCallback((title) => {
     setQuery(title)
     setSuggestions([])
